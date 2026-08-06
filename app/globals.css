@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #eef1f4;
+  --foreground: #121417;
+  --muted: #5c6570;
+  --surface: #e2e7ed;
+  --surface-strong: #cfd6de;
+  --line: rgba(18, 20, 23, 0.12);
+  --accent: #1f4d4a;
+  --accent-soft: #d5e4e2;
+  --hero-ink: #f4f6f8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-hero-ink: var(--hero-ink);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(31, 77, 74, 0.14), transparent 32%),
+    radial-gradient(circle at 88% 8%, rgba(70, 90, 120, 0.12), transparent 30%),
+    linear-gradient(180deg, #f5f7fa 0%, var(--background) 45%, #e7ebf0 100%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), sans-serif;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 30%, white);
+  color: var(--foreground);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes image-pan {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.8s ease-out both;
+}
+
+.animate-fade {
+  animation: fade-in 1s ease-out both;
+}
+
+.animate-image-pan {
+  animation: image-pan 1.6s ease-out both;
+}
+
+.delay-1 {
+  animation-delay: 0.12s;
+}
+
+.delay-2 {
+  animation-delay: 0.24s;
+}
+
+.delay-3 {
+  animation-delay: 0.36s;
 }

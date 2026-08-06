@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RM B-Side
 
-## Getting Started
+A clean product showcase website built with Next.js, TypeScript, Tailwind CSS, and Supabase.
 
-First, run the development server:
+No payments, checkout, or orders — just a public storefront and a simple admin dashboard for managing products.
+
+## Stack
+
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
+- Supabase (Postgres, Auth, Storage)
+- Vercel-ready deployment
+
+## Features
+
+- Homepage with hero, collections, products, and footer
+- Product detail pages
+- Secure admin login (Supabase Auth)
+- Add / edit / delete products
+- Product image uploads to Supabase Storage
+
+## Local setup
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Create a Supabase project
+
+Create a **new** Supabase project (do not reuse another website’s project).
+
+### 3. Run the database schema
+
+In the Supabase SQL editor, run:
+
+[`supabase/schema.sql`](supabase/schema.sql)
+
+This creates:
+
+- `collections` and `products` tables
+- Row Level Security policies
+- The public `product-images` storage bucket
+- Seeded collections: Essentials, Limited, Accessories
+
+### 4. Create an admin user
+
+In Supabase → **Authentication** → **Users** → **Add user**
+
+Use email/password. This is the account for `/admin/login`.
+
+### 5. Configure environment variables
+
+Copy the example file:
+
+```bash
+cp .env.example .env.local
+```
+
+Fill in values from Supabase → **Project Settings** → **API**:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+### 6. Start the app
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Admin: [http://localhost:3000/admin/login](http://localhost:3000/admin/login)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project structure
 
-## Learn More
+```text
+app/                 Public pages + admin routes
+actions/             Server actions (auth + product CRUD)
+components/          UI for site, products, and admin
+lib/                 Types, content, data helpers, Supabase clients
+supabase/schema.sql  Database + storage setup
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment (Vercel)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push this repo to GitHub.
+2. Import the project in [Vercel](https://vercel.com).
+3. Add the same environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Deploy.
+5. In Supabase Auth settings, add your Vercel URL to allowed redirect / site URLs if prompted.
+6. Smoke-test:
+   - Homepage loads collections/products
+   - Admin login works
+   - Create a product with an image
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Content edits
 
-## Deploy on Vercel
+Brand copy, hero text, and footer contact live in [`lib/content.ts`](lib/content.ts).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Notes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Prices display in USD.
+- Collections are seeded in SQL and chosen from a dropdown in admin.
+- Only authenticated users can create, update, or delete products (enforced by RLS).
