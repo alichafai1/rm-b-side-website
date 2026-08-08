@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
   createProductAction,
   updateProductAction,
@@ -15,68 +15,49 @@ type ProductFormProps = {
   existingImages?: string[];
 };
 
-type ImageSlot = {
-  file: File | null;
-  preview: string | null;
-};
-
-function emptySlots(): ImageSlot[] {
-  return Array.from({ length: MAX_PRODUCT_IMAGES }, () => ({
-    file: null,
-    preview: null,
-  }));
-}
-
 export function ProductForm({
   collections,
   product,
   existingImages = [],
 }: ProductFormProps) {
   const [error, setError] = useState<string | null>(null);
-  const [slots, setSlots] = useState<ImageSlot[]>(emptySlots);
+  const [previews, setPreviews] = useState<Array<string | null>>(
+    Array.from({ length: MAX_PRODUCT_IMAGES }, () => null),
+  );
   const [isPending, startTransition] = useTransition();
   const isEditing = Boolean(product);
-
-  const selectedCount = useMemo(
-    () => slots.filter((slot) => slot.file).length,
-    [slots],
-  );
-
-  function updateSlot(index: number, file: File | null) {
-    setSlots((current) =>
-      current.map((slot, slotIndex) => {
-        if (slotIndex !== index) return slot;
-        if (slot.preview?.startsWith("blob:")) {
-          URL.revokeObjectURL(slot.preview);
-        }
-        return {
-          file,
-          preview: file ? URL.createObjectURL(file) : null,
-        };
-      }),
-    );
-  }
 
   return (
     <form
       className="space-y-6"
       onSubmit={(event) => {
         event.preventDefault();
-        const formData = new FormData(event.currentTarget);
+        const form = event.currentTarget;
+        const formData = new FormData(form);
 
-        const keepUrls = slots.map((slot, index) =>
-          slot.file ? null : existingImages[index] ?? null,
-        );
+        // Keep current images for any slot the user did not replace.
+        const keepUrls = Array.from({ length: MAX_PRODUCT_IMAGES }, (_, index) => {
+          const selected = formData.get(`image_${index}`);
+          const hasNewFile = selected instanceof File && selected.size > 0;
+          return hasNewFile ? null : existingImages[index] ?? null;
+        });
         formData.set("keep_urls", JSON.stringify(keepUrls));
 
-        slots.forEach((slot, index) => {
-          if (slot.file) {
-            formData.set(`image_${index}`, slot.file);
-          }
-        });
+        const hasAnyNewFile = Array.from({ length: MAX_PRODUCT_IMAGES }).some(
+          (_, index) => {
+            const selected = formData.get(`image_${index}`);
+            return selected instanceof File && selected.size > 0;
+          },
+        );
+        const hasExisting = existingImages.length > 0;
 
-        if (!isEditing && selectedCount === 0) {
-          setError("Upload at least 1 image (up to 3).");
+        if (!isEditing && !hasAnyNewFile) {
+          setError("Please choose at least 1 image. You can add up to 3.");
+          return;
+        }
+
+        if (isEditing && !hasAnyNewFile && !hasExisting) {
+          setError("Please choose at least 1 image. You can add up to 3.");
           return;
         }
 
@@ -184,37 +165,49 @@ export function ProductForm({
       <div className="space-y-4">
         <div>
           <p className="text-sm font-medium text-foreground">
-            Watch images (1–{MAX_PRODUCT_IMAGES})
+            Watch images (1, 2, or 3)
           </p>
           <p className="mt-1 text-xs text-muted">
-            Choose a photo for each slot. Image 1 is the main photo.
+            Add only the images you need. Image 1 is the main photo. Image 2 and
+            Image 3 are optional.
             {isEditing
-              ? " Leave slots empty to keep current images."
-              : " Image 2 and Image 3 are optional."}
+              ? " Leave a slot empty to keep its current image."
+              : ""}
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          {slots.map((slot, index) => {
+          {Array.from({ length: MAX_PRODUCT_IMAGES }, (_, index) => {
             const label =
               index === 0 ? "Image 1 (main)" : `Image ${index + 1} (optional)`;
-            const preview = slot.preview ?? existingImages[index] ?? null;
+            const preview = previews[index] ?? existingImages[index] ?? null;
 
             return (
-              <div key={label} className="space-y-2 rounded-sm border border-line p-3">
+              <div
+                key={label}
+                className="space-y-2 rounded-sm border border-line p-3"
+              >
                 <label
-                  htmlFor={`image-slot-${index}`}
+                  htmlFor={`image_${index}`}
                   className="block text-sm text-muted"
                 >
                   {label}
                 </label>
                 <input
-                  id={`image-slot-${index}`}
+                  id={`image_${index}`}
+                  name={`image_${index}`}
                   type="file"
                   accept="image/*"
                   onChange={(event) => {
                     const file = event.target.files?.[0] ?? null;
-                    updateSlot(index, file);
+                    setPreviews((current) => {
+                      const next = [...current];
+                      if (next[index]?.startsWith("blob:")) {
+                        URL.revokeObjectURL(next[index] as string);
+                      }
+                      next[index] = file ? URL.createObjectURL(file) : null;
+                      return next;
+                    });
                   }}
                   className="w-full text-sm file:mr-3 file:border-0 file:bg-accent-soft file:px-3 file:py-1.5"
                 />
@@ -231,15 +224,6 @@ export function ProductForm({
                       <span className="absolute left-2 top-2 bg-foreground/80 px-2 py-0.5 text-[10px] uppercase tracking-wide text-hero-ink">
                         Main
                       </span>
-                    ) : null}
-                    {slot.file ? (
-                      <button
-                        type="button"
-                        onClick={() => updateSlot(index, null)}
-                        className="absolute right-2 top-2 bg-white/90 px-2 py-0.5 text-[10px] uppercase tracking-wide text-foreground"
-                      >
-                        Clear
-                      </button>
                     ) : null}
                   </div>
                 ) : (

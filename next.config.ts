@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  serverActions: {
+    bodySizeLimit: "15mb",
+  },
   images: {
     // Needed locally when DNS/VPN resolves remote hosts to private IPs (198.18.x.x).
     // Production on Vercel uses public DNS and is unaffected.

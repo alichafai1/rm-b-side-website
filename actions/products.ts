@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import {
   clearProductImages,
   collectImageSlots,
-  MAX_PRODUCT_IMAGES,
   saveProductImageSlots,
 } from "@/lib/product-images";
 import { createClient } from "@/lib/supabase/server";
@@ -39,13 +38,6 @@ function requireFields(formData: FormData) {
     }
   }
 
-  const filledSlots = imageSlots.filter((slot) => slot.file || slot.keepUrl);
-  if (filledSlots.length > MAX_PRODUCT_IMAGES) {
-    return {
-      error: `You can upload up to ${MAX_PRODUCT_IMAGES} images.`,
-    } as const;
-  }
-
   return {
     title,
     price,
@@ -75,9 +67,9 @@ export async function createProductAction(formData: FormData) {
     return parsed;
   }
 
-  const hasImage = parsed.imageSlots.some((slot) => slot.file);
+  const hasImage = parsed.imageSlots.some((slot) => slot.file || slot.keepUrl);
   if (!hasImage) {
-    return { error: "Upload at least 1 image (up to 3)." };
+    return { error: "Please choose at least 1 image. You can add up to 3." };
   }
 
   const supabase = await requireUser();
@@ -126,13 +118,10 @@ export async function updateProductAction(
   }
 
   const supabase = await requireUser();
-  const hasImageChange = parsed.imageSlots.some(
-    (slot) => slot.file || slot.keepUrl,
-  );
-
+  const hasNewFile = parsed.imageSlots.some((slot) => slot.file);
   let imageUrl: string | undefined;
 
-  if (hasImageChange && parsed.imageSlots.some((slot) => slot.file)) {
+  if (hasNewFile) {
     try {
       const imageUrls = await saveProductImageSlots(
         supabase,
