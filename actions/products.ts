@@ -4,9 +4,9 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   clearProductImages,
-  collectImageFiles,
+  collectImageSlots,
   MAX_PRODUCT_IMAGES,
-  uploadProductImages,
+  saveProductImageSlots,
 } from "@/lib/product-images";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,7 +18,7 @@ function requireFields(formData: FormData) {
     formData.get("short_description") ?? "",
   ).trim();
   const collectionId = String(formData.get("collection_id") ?? "").trim();
-  const images = collectImageFiles(formData);
+  const imageSlots = collectImageSlots(formData);
 
   if (!title || !priceRaw || !shortDescription || !collectionId) {
     return {
@@ -39,7 +39,8 @@ function requireFields(formData: FormData) {
     }
   }
 
-  if (images.length > MAX_PRODUCT_IMAGES) {
+  const filledSlots = imageSlots.filter((slot) => slot.file || slot.keepUrl);
+  if (filledSlots.length > MAX_PRODUCT_IMAGES) {
     return {
       error: `You can upload up to ${MAX_PRODUCT_IMAGES} images.`,
     } as const;
@@ -51,7 +52,7 @@ function requireFields(formData: FormData) {
     comparePrice,
     shortDescription,
     collectionId,
-    images,
+    imageSlots,
   } as const;
 }
 
@@ -74,7 +75,8 @@ export async function createProductAction(formData: FormData) {
     return parsed;
   }
 
-  if (parsed.images.length === 0) {
+  const hasImage = parsed.imageSlots.some((slot) => slot.file);
+  if (!hasImage) {
     return { error: "Upload at least 1 image (up to 3)." };
   }
 
@@ -83,10 +85,10 @@ export async function createProductAction(formData: FormData) {
 
   let imageUrls: string[];
   try {
-    imageUrls = await uploadProductImages(
+    imageUrls = await saveProductImageSlots(
       supabase,
       productId,
-      parsed.images,
+      parsed.imageSlots,
     );
   } catch (error) {
     return {
@@ -124,15 +126,18 @@ export async function updateProductAction(
   }
 
   const supabase = await requireUser();
+  const hasImageChange = parsed.imageSlots.some(
+    (slot) => slot.file || slot.keepUrl,
+  );
+
   let imageUrl: string | undefined;
 
-  if (parsed.images.length > 0) {
+  if (hasImageChange && parsed.imageSlots.some((slot) => slot.file)) {
     try {
-      await clearProductImages(supabase, productId);
-      const imageUrls = await uploadProductImages(
+      const imageUrls = await saveProductImageSlots(
         supabase,
         productId,
-        parsed.images,
+        parsed.imageSlots,
       );
       imageUrl = imageUrls[0];
     } catch (error) {
