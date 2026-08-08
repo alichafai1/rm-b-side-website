@@ -6,9 +6,8 @@ export const siteContent = {
     text: "Discover clean designs, solid quality, and styles that fit any look — from daily wear to special moments.",
     ctaLabel: "Browse watches",
     ctaHref: "#products",
-    imageSrc:
-      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=2400&q=80",
-    imageAlt: "Close-up of a classic wristwatch",
+    imageSrc: "/hero-watch.svg",
+    imageAlt: "Simple unbranded watch illustration",
   },
   collections: {
     eyebrow: "Collections",

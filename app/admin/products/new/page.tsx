@@ -17,8 +17,8 @@ export default async function NewProductPage() {
         Add watch
       </h1>
       <p className="mt-3 text-sm text-muted">
-        Upload an image and fill in the details. The watch appears on the
-        homepage immediately.
+        Upload 1 to 3 images and fill in the details. The first image is used
+        as the main photo on the homepage.
       </p>
       <div className="mt-8 border border-line bg-background/80 p-6">
         <ProductForm collections={collections} />

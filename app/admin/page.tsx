@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { DeleteProductButton } from "@/components/admin/DeleteProductButton";
-import { formatPrice } from "@/lib/format";
+import { PriceDisplay } from "@/components/product/PriceDisplay";
+import { ProductImage } from "@/components/product/ProductImage";
 import { getProducts } from "@/lib/data";
 
 export default async function AdminDashboardPage() {
@@ -39,7 +39,7 @@ export default async function AdminDashboardPage() {
                 className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center"
               >
                 <div className="relative h-20 w-16 shrink-0 overflow-hidden bg-surface">
-                  <Image
+                  <ProductImage
                     src={product.image_url}
                     alt={product.title}
                     fill
@@ -49,12 +49,16 @@ export default async function AdminDashboardPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{product.title}</p>
-                  <p className="mt-1 text-sm text-muted">
-                    {formatPrice(product.price)}
-                    {product.collections?.name
-                      ? ` · ${product.collections.name}`
-                      : ""}
-                  </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
+                    <PriceDisplay
+                      price={product.price}
+                      comparePrice={product.compare_price ?? 400}
+                      className="text-sm"
+                    />
+                    {product.collections?.name ? (
+                      <span>· {product.collections.name}</span>
+                    ) : null}
+                  </div>
                 </div>
                 <div className="flex items-center gap-4">
                   <Link

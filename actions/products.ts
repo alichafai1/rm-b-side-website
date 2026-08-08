@@ -2,16 +2,23 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import {
+  clearProductImages,
+  collectImageFiles,
+  MAX_PRODUCT_IMAGES,
+  uploadProductImages,
+} from "@/lib/product-images";
 import { createClient } from "@/lib/supabase/server";
 
 function requireFields(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const priceRaw = String(formData.get("price") ?? "").trim();
+  const comparePriceRaw = String(formData.get("compare_price") ?? "").trim();
   const shortDescription = String(
     formData.get("short_description") ?? "",
   ).trim();
   const collectionId = String(formData.get("collection_id") ?? "").trim();
-  const image = formData.get("image");
+  const images = collectImageFiles(formData);
 
   if (!title || !priceRaw || !shortDescription || !collectionId) {
     return {
@@ -24,12 +31,27 @@ function requireFields(formData: FormData) {
     return { error: "Enter a valid price." } as const;
   }
 
+  let comparePrice: number | null = null;
+  if (comparePriceRaw) {
+    comparePrice = Number(comparePriceRaw);
+    if (!Number.isFinite(comparePrice) || comparePrice < 0) {
+      return { error: "Enter a valid compare price." } as const;
+    }
+  }
+
+  if (images.length > MAX_PRODUCT_IMAGES) {
+    return {
+      error: `You can upload up to ${MAX_PRODUCT_IMAGES} images.`,
+    } as const;
+  }
+
   return {
     title,
     price,
+    comparePrice,
     shortDescription,
     collectionId,
-    image: image instanceof File ? image : null,
+    images,
   } as const;
 }
 
@@ -46,53 +68,30 @@ async function requireUser() {
   return supabase;
 }
 
-async function uploadProductImage(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  productId: string,
-  image: File,
-) {
-  const extension = image.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `products/${productId}/${Date.now()}.${extension}`;
-
-  const { error } = await supabase.storage
-    .from("product-images")
-    .upload(path, image, {
-      cacheControl: "3600",
-      upsert: false,
-      contentType: image.type || "image/jpeg",
-    });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from("product-images").getPublicUrl(path);
-
-  return publicUrl;
-}
-
 export async function createProductAction(formData: FormData) {
   const parsed = requireFields(formData);
   if ("error" in parsed) {
     return parsed;
   }
 
-  if (!parsed.image || parsed.image.size === 0) {
-    return { error: "A product image is required." };
+  if (parsed.images.length === 0) {
+    return { error: "Upload at least 1 image (up to 3)." };
   }
 
   const supabase = await requireUser();
   const productId = crypto.randomUUID();
 
-  let imageUrl: string;
+  let imageUrls: string[];
   try {
-    imageUrl = await uploadProductImage(supabase, productId, parsed.image);
+    imageUrls = await uploadProductImages(
+      supabase,
+      productId,
+      parsed.images,
+    );
   } catch (error) {
     return {
       error:
-        error instanceof Error ? error.message : "Failed to upload image.",
+        error instanceof Error ? error.message : "Failed to upload images.",
     };
   }
 
@@ -100,9 +99,10 @@ export async function createProductAction(formData: FormData) {
     id: productId,
     title: parsed.title,
     price: parsed.price,
+    compare_price: parsed.comparePrice,
     short_description: parsed.shortDescription,
     collection_id: parsed.collectionId,
-    image_url: imageUrl,
+    image_url: imageUrls[0],
   });
 
   if (error) {
@@ -114,7 +114,10 @@ export async function createProductAction(formData: FormData) {
   redirect("/admin");
 }
 
-export async function updateProductAction(productId: string, formData: FormData) {
+export async function updateProductAction(
+  productId: string,
+  formData: FormData,
+) {
   const parsed = requireFields(formData);
   if ("error" in parsed) {
     return parsed;
@@ -123,13 +126,19 @@ export async function updateProductAction(productId: string, formData: FormData)
   const supabase = await requireUser();
   let imageUrl: string | undefined;
 
-  if (parsed.image && parsed.image.size > 0) {
+  if (parsed.images.length > 0) {
     try {
-      imageUrl = await uploadProductImage(supabase, productId, parsed.image);
+      await clearProductImages(supabase, productId);
+      const imageUrls = await uploadProductImages(
+        supabase,
+        productId,
+        parsed.images,
+      );
+      imageUrl = imageUrls[0];
     } catch (error) {
       return {
         error:
-          error instanceof Error ? error.message : "Failed to upload image.",
+          error instanceof Error ? error.message : "Failed to upload images.",
       };
     }
   }
@@ -139,6 +148,7 @@ export async function updateProductAction(productId: string, formData: FormData)
     .update({
       title: parsed.title,
       price: parsed.price,
+      compare_price: parsed.comparePrice,
       short_description: parsed.shortDescription,
       collection_id: parsed.collectionId,
       ...(imageUrl ? { image_url: imageUrl } : {}),
@@ -157,6 +167,12 @@ export async function updateProductAction(productId: string, formData: FormData)
 
 export async function deleteProductAction(productId: string) {
   const supabase = await requireUser();
+
+  try {
+    await clearProductImages(supabase, productId);
+  } catch {
+    // Continue deleting the product row even if storage cleanup fails.
+  }
 
   const { error } = await supabase.from("products").delete().eq("id", productId);
 

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { ProductImage } from "@/components/product/ProductImage";
 import { siteContent } from "@/lib/content";
 import type { Collection } from "@/lib/types";
 
@@ -35,7 +35,7 @@ export function CollectionsSection({ collections }: CollectionsSectionProps) {
                 className="group relative block aspect-[4/5] overflow-hidden"
               >
                 {collection.image_url ? (
-                  <Image
+                  <ProductImage
                     src={collection.image_url}
                     alt={collection.name}
                     fill

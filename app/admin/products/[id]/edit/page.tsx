@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductForm } from "@/components/admin/ProductForm";
 import { getCollections, getProduct } from "@/lib/data";
+import { listProductImageUrls } from "@/lib/product-images";
+import { createClient } from "@/lib/supabase/server";
 
 type EditProductPageProps = {
   params: Promise<{ id: string }>;
@@ -20,6 +22,9 @@ export default async function EditProductPage({
     notFound();
   }
 
+  const supabase = await createClient();
+  const existingImages = await listProductImageUrls(supabase, product.id);
+
   return (
     <main className="mx-auto w-full max-w-3xl px-5 py-10 sm:px-8">
       <Link
@@ -32,10 +37,16 @@ export default async function EditProductPage({
         Edit watch
       </h1>
       <p className="mt-3 text-sm text-muted">
-        Update details or replace the watch image.
+        Update details or replace the watch images (1 to 3).
       </p>
       <div className="mt-8 border border-line bg-background/80 p-6">
-        <ProductForm collections={collections} product={product} />
+        <ProductForm
+          collections={collections}
+          product={product}
+          existingImages={
+            existingImages.length > 0 ? existingImages : [product.image_url]
+          }
+        />
       </div>
     </main>
   );
