@@ -2,8 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1", "localhost"],
-  serverActions: {
-    bodySizeLimit: "15mb",
+  experimental: {
+    serverActions: {
+      // Phone photos are often larger than the default 1MB limit.
+      bodySizeLimit: "15mb",
+    },
   },
   images: {
     // Needed locally when DNS/VPN resolves remote hosts to private IPs (198.18.x.x).
