@@ -12,7 +12,6 @@ import { createClient } from "@/lib/supabase/server";
 function requireFields(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const priceRaw = String(formData.get("price") ?? "").trim();
-  const comparePriceRaw = String(formData.get("compare_price") ?? "").trim();
   const shortDescription = String(
     formData.get("short_description") ?? "",
   ).trim();
@@ -30,18 +29,9 @@ function requireFields(formData: FormData) {
     return { error: "Enter a valid price." } as const;
   }
 
-  let comparePrice: number | null = null;
-  if (comparePriceRaw) {
-    comparePrice = Number(comparePriceRaw);
-    if (!Number.isFinite(comparePrice) || comparePrice < 0) {
-      return { error: "Enter a valid compare price." } as const;
-    }
-  }
-
   return {
     title,
     price,
-    comparePrice,
     shortDescription,
     collectionId,
     imageSlots,
@@ -93,7 +83,6 @@ export async function createProductAction(formData: FormData) {
     id: productId,
     title: parsed.title,
     price: parsed.price,
-    compare_price: parsed.comparePrice,
     short_description: parsed.shortDescription,
     collection_id: parsed.collectionId,
     image_url: imageUrls[0],
@@ -142,7 +131,6 @@ export async function updateProductAction(
     .update({
       title: parsed.title,
       price: parsed.price,
-      compare_price: parsed.comparePrice,
       short_description: parsed.shortDescription,
       collection_id: parsed.collectionId,
       ...(imageUrl ? { image_url: imageUrl } : {}),

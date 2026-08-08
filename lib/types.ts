@@ -11,7 +11,6 @@ export type Product = {
   id: string;
   title: string;
   price: number;
-  compare_price: number | null;
   image_url: string;
   image_urls?: string[] | null;
   short_description: string;

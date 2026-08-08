@@ -50,11 +50,7 @@ export default async function AdminDashboardPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{product.title}</p>
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted">
-                    <PriceDisplay
-                      price={product.price}
-                      comparePrice={product.compare_price ?? 400}
-                      className="text-sm"
-                    />
+                    <PriceDisplay price={product.price} className="text-sm" />
                     {product.collections?.name ? (
                       <span>· {product.collections.name}</span>
                     ) : null}

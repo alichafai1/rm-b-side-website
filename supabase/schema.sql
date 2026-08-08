@@ -16,7 +16,6 @@ create table if not exists public.products (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   price numeric(10, 2) not null check (price >= 0),
-  compare_price numeric(10, 2) check (compare_price is null or compare_price >= 0),
   image_url text not null,
   image_urls text[] not null default '{}',
   short_description text not null,

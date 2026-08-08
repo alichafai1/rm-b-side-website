@@ -85,39 +85,20 @@ export function ProductForm({
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <div>
-          <label htmlFor="price" className="mb-2 block text-sm text-muted">
-            Price (USD)
-          </label>
-          <input
-            id="price"
-            name="price"
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            defaultValue={product?.price}
-            className="w-full border border-line bg-background px-3 py-2.5 outline-none ring-accent focus:ring-2"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="compare_price"
-            className="mb-2 block text-sm text-muted"
-          >
-            Compare price (USD)
-          </label>
-          <input
-            id="compare_price"
-            name="compare_price"
-            type="number"
-            min="0"
-            step="0.01"
-            defaultValue={product?.compare_price ?? undefined}
-            className="w-full border border-line bg-background px-3 py-2.5 outline-none ring-accent focus:ring-2"
-          />
-        </div>
+      <div>
+        <label htmlFor="price" className="mb-2 block text-sm text-muted">
+          Price (USD)
+        </label>
+        <input
+          id="price"
+          name="price"
+          type="number"
+          min="0"
+          step="0.01"
+          required
+          defaultValue={product?.price}
+          className="w-full border border-line bg-background px-3 py-2.5 outline-none ring-accent focus:ring-2"
+        />
       </div>
 
       <div>

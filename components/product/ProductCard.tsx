@@ -25,11 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="space-y-2 p-4">
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-lg font-medium tracking-tight">{product.title}</h3>
-          <PriceDisplay
-            price={product.price}
-            comparePrice={product.compare_price ?? 400}
-            className="shrink-0 text-sm"
-          />
+          <PriceDisplay price={product.price} className="shrink-0 text-sm" />
         </div>
         <p className="line-clamp-2 text-sm leading-relaxed text-muted">
           {product.short_description}

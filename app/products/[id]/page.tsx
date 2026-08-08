@@ -57,11 +57,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <h1 className="mt-3 font-[family-name:var(--font-display)] text-4xl tracking-tight sm:text-5xl">
             {product.title}
           </h1>
-          <PriceDisplay
-            price={product.price}
-            comparePrice={product.compare_price ?? 400}
-            className="mt-4 text-xl"
-          />
+          <PriceDisplay price={product.price} className="mt-4 text-xl" />
           <p className="mt-6 max-w-md text-base leading-relaxed text-muted">
             {product.short_description}
           </p>
