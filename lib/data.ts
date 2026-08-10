@@ -26,17 +26,25 @@ export async function getCollections(): Promise<Collection[]> {
   }
 }
 
-export async function getProducts(): Promise<ProductWithCollection[]> {
+export async function getProducts(
+  limit?: number,
+): Promise<ProductWithCollection[]> {
   if (!getSupabaseEnv()) {
     return [];
   }
 
   try {
     const supabase = await createClient();
-    const { data, error } = await supabase
+    let query = supabase
       .from("products")
       .select("*, collections(id, name, slug)")
       .order("created_at", { ascending: false });
+
+    if (typeof limit === "number" && limit > 0) {
+      query = query.limit(limit);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("Failed to load products:", error.message);

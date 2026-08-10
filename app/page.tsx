@@ -3,6 +3,7 @@ import { Hero } from "@/components/site/Hero";
 import { ProductsSection } from "@/components/site/ProductsSection";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
+import { TrustSection } from "@/components/site/TrustSection";
 import { getCollections, getProducts } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const [collections, products] = await Promise.all([
     getCollections(),
-    getProducts(),
+    getProducts(6),
   ]);
 
   return (
@@ -20,6 +21,7 @@ export default async function HomePage() {
         <Hero />
         <CollectionsSection collections={collections} />
         <ProductsSection products={products} />
+        <TrustSection />
       </main>
       <SiteFooter />
     </>

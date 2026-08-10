@@ -26,6 +26,23 @@ export const siteContent = {
     text: "Browse the full selection. Each watch shows the look, price, and a short description.",
     empty: "No watches yet. Add your first watch from the admin dashboard.",
   },
+  trust: [
+    {
+      id: "shipping",
+      title: "Free shipping",
+      text: "Complimentary delivery on every order, with tracking from checkout to your door.",
+    },
+    {
+      id: "payment",
+      title: "Secure payment",
+      text: "Your card details stay protected with encrypted checkout every time you buy.",
+    },
+    {
+      id: "returns",
+      title: "Easy returns",
+      text: "Changed your mind? Send it back within the return window for a simple refund.",
+    },
+  ],
   footer: {
     blurb:
       "patara offers a simple selection of stylish timepieces. Browse the collection and contact us if you find something you like.",
