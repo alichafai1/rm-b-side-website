@@ -1,29 +1,61 @@
 import Link from "next/link";
+import { CartButton } from "@/components/cart/CartButton";
 import { siteContent } from "@/lib/content";
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+  variant?: "overlay" | "solid";
+};
+
+export function SiteHeader({ variant = "overlay" }: SiteHeaderProps) {
+  const isOverlay = variant === "overlay";
+
   return (
-    <header className="absolute inset-x-0 top-0 z-20">
+    <header
+      className={
+        isOverlay
+          ? "absolute inset-x-0 top-0 z-20"
+          : "border-b border-line bg-background/90"
+      }
+    >
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
         <Link
           href="/"
-          className="font-[family-name:var(--font-display)] text-2xl tracking-tight text-hero-ink sm:text-3xl"
+          className={`font-[family-name:var(--font-display)] text-2xl tracking-tight sm:text-3xl ${
+            isOverlay ? "text-hero-ink" : "text-foreground"
+          }`}
         >
           {siteContent.brand}
         </Link>
-        <nav className="flex items-center gap-5 text-sm text-hero-ink/85 sm:gap-7">
-          <a href="#collections" className="transition hover:text-hero-ink">
+        <nav
+          className={`flex items-center gap-5 text-sm sm:gap-7 ${
+            isOverlay ? "text-hero-ink/85" : "text-muted"
+          }`}
+        >
+          <Link
+            href="/#collections"
+            className={`transition ${
+              isOverlay ? "hover:text-hero-ink" : "hover:text-foreground"
+            }`}
+          >
             Collections
-          </a>
-          <a href="#products" className="transition hover:text-hero-ink">
+          </Link>
+          <Link
+            href="/#products"
+            className={`transition ${
+              isOverlay ? "hover:text-hero-ink" : "hover:text-foreground"
+            }`}
+          >
             Watches
-          </a>
+          </Link>
           <a
             href={`mailto:${siteContent.footer.contact.email}`}
-            className="transition hover:text-hero-ink"
+            className={`transition ${
+              isOverlay ? "hover:text-hero-ink" : "hover:text-foreground"
+            }`}
           >
             Contact
           </a>
+          <CartButton tone={isOverlay ? "light" : "dark"} />
         </nav>
       </div>
     </header>

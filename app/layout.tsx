@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, Syne } from "next/font/google";
+import { CartProvider } from "@/components/cart/CartProvider";
 import { siteContent } from "@/lib/content";
 import "./globals.css";
 
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${display.variable} ${body.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <CartProvider>{children}</CartProvider>
+      </body>
     </html>
   );
 }
