@@ -9,8 +9,11 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    // Vercel Image Optimization returns 402 on this project
+    // (OPTIMIZED_IMAGE_REQUEST_PAYMENT_REQUIRED), which blanks every
+    // next/image. Serve originals directly instead.
+    unoptimized: true,
     // Needed locally when DNS/VPN resolves remote hosts to private IPs (198.18.x.x).
-    // Production on Vercel uses public DNS and is unaffected.
     dangerouslyAllowLocalIP: true,
     dangerouslyAllowSVG: true,
     contentDispositionType: "attachment",

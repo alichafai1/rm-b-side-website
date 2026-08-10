@@ -11,6 +11,7 @@ export function Hero() {
         alt={hero.imageAlt}
         fill
         priority
+        unoptimized
         className="animate-image-pan object-cover"
         sizes="100vw"
       />
