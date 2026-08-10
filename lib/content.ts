@@ -6,14 +6,19 @@ export const siteContent = {
     text: "Discover clean designs, solid quality, and styles that fit any look — from daily wear to special moments.",
     ctaLabel: "Browse watches",
     ctaHref: "#products",
-    imageSrc: "/hero-watch.svg",
-    imageAlt: "Simple unbranded watch illustration",
+    imageSrc: "/hero.jpg",
+    imageAlt: "Close-up of a wristwatch on a wrist",
   },
   collections: {
     eyebrow: "Collections",
     title: "Watch styles",
     text: "Explore classic, sport, and premium watches — pick the style that fits you.",
     empty: "Collections will appear here once they are added.",
+    images: {
+      classic: "/collections/classic.jpg",
+      sport: "/collections/sport.jpg",
+      premium: "/collections/premium.jpg",
+    },
   },
   products: {
     eyebrow: "Watches",

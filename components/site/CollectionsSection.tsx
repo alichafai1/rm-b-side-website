@@ -6,6 +6,18 @@ type CollectionsSectionProps = {
   collections: Collection[];
 };
 
+function collectionImageSrc(collection: Collection) {
+  const curated =
+    siteContent.collections.images[
+      collection.slug as keyof typeof siteContent.collections.images
+    ];
+  if (curated) return curated;
+
+  const remote = collection.image_url;
+  if (remote && !remote.endsWith(".svg")) return remote;
+  return null;
+}
+
 export function CollectionsSection({ collections }: CollectionsSectionProps) {
   const copy = siteContent.collections;
 
@@ -28,31 +40,35 @@ export function CollectionsSection({ collections }: CollectionsSectionProps) {
           </p>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {collections.map((collection) => (
-              <a
-                key={collection.id}
-                href="#products"
-                className="group relative block aspect-[4/5] overflow-hidden"
-              >
-                {collection.image_url ? (
-                  <ProductImage
-                    src={collection.image_url}
-                    alt={collection.name}
-                    fill
-                    className="object-cover transition duration-700 group-hover:scale-105"
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-surface-strong" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5">
-                  <h3 className="font-[family-name:var(--font-display)] text-3xl text-hero-ink">
-                    {collection.name}
-                  </h3>
-                </div>
-              </a>
-            ))}
+            {collections.map((collection) => {
+              const imageSrc = collectionImageSrc(collection);
+
+              return (
+                <a
+                  key={collection.id}
+                  href="#products"
+                  className="group relative block aspect-[4/5] overflow-hidden"
+                >
+                  {imageSrc ? (
+                    <ProductImage
+                      src={imageSrc}
+                      alt={collection.name}
+                      fill
+                      className="object-cover transition duration-700 group-hover:scale-105"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-surface-strong" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-5">
+                    <h3 className="font-[family-name:var(--font-display)] text-3xl text-hero-ink">
+                      {collection.name}
+                    </h3>
+                  </div>
+                </a>
+              );
+            })}
           </div>
         )}
       </div>

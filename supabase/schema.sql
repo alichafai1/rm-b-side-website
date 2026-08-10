@@ -45,9 +45,9 @@ execute function public.set_updated_at();
 
 insert into public.collections (name, slug, image_url, sort_order)
 values
-  ('Classic', 'classic', 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=1200&q=80', 1),
-  ('Sport', 'sport', 'https://images.unsplash.com/photo-1434056886845-dac89ffe9b56?auto=format&fit=crop&w=1200&q=80', 2),
-  ('Premium', 'premium', 'https://images.unsplash.com/photo-1509048191080-d2984bad6ae5?auto=format&fit=crop&w=1200&q=80', 3)
+  ('Classic', 'classic', '/collections/classic.jpg', 1),
+  ('Sport', 'sport', '/collections/sport.jpg', 2),
+  ('Premium', 'premium', '/collections/premium.jpg', 3)
 on conflict (slug) do nothing;
 
 insert into storage.buckets (id, name, public)
